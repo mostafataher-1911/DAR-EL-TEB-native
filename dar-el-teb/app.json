@@ -30,7 +30,7 @@
       "useNextNotificationsApi": true,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.mostafa1911.darelteb"
+      "package": "darelteb.android"
     },
 
     "plugins": [
@@ -38,7 +38,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/notification-icon.png",
+          "icon": "./assets/images/logo.png",
           "color": "#ffffff"
         }
       ],
