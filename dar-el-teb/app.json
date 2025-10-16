@@ -4,13 +4,12 @@
     "slug": "dar-el-teb",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/logo_square_1024.png",
     "scheme": "darelteb",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
 
     "ios": {
-      
       "supportsTablet": true,
       "bundleIdentifier": "darelteb.com",
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -27,7 +26,6 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "darelteb.android"
@@ -38,11 +36,10 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo.png",
+          "icon": "./assets/images/logo_square_1024.png",
           "color": "#ffffff"
         }
-      ],
-      "expo-firebase-core"
+      ]
     ],
 
     "web": {

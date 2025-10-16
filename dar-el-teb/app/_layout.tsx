@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
-
+import useRegisterPushToken from "./../NotificationService";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function RootLayout() {
@@ -43,7 +43,7 @@ export default function RootLayout() {
       </View>
     );
   }
-
+  useRegisterPushToken();
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack initialRouteName={initialRoute}>
