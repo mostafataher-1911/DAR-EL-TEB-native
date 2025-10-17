@@ -1,18 +1,18 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, Image, Platform, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image, Platform, ActivityIndicator, Alert } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import LogoutButton from "@/components/LogoutButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router"; // ✅ لإرجاع المستخدم إلى شاشة تسجيل الدخول
 
-/** نوع بسيط للبيانات اللي راجعة من الـ API */
 type UserData = {
   name?: string;
-  phone?: string;         // some responses use `phone`
-  phoneNumber?: string;   // some responses use `phoneNumber`
+  phone?: string;
+  phoneNumber?: string;
   address?: string;
-  bonus?: number;         // "coins" equivalent
+  bonus?: number;
 };
 
 type State = {
@@ -35,7 +35,13 @@ export default class Account extends Component<{}, State> {
       const token = await AsyncStorage.getItem("token");
 
       if (!token) {
-        console.error("❌ No token found in AsyncStorage");
+        console.warn("⚠️ No token found — redirecting to Login");
+        Alert.alert("تنبيه", "يجب تسجيل الدخول أولاً", [
+          {
+            text: "حسناً",
+            onPress: () => router.replace("/login"), // ✅ يرجع المستخدم للـ Login
+          },
+        ]);
         this.setState({ loading: false });
         return;
       }
@@ -55,6 +61,13 @@ export default class Account extends Component<{}, State> {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("❌ Fetch failed:", response.status, errorText);
+
+        if (response.status === 401) {
+          // ✅ التوكن منتهي أو غير صالح → يرجعه للـ Login
+          await AsyncStorage.removeItem("token");
+          router.replace("/login");
+        }
+
         this.setState({ loading: false });
         return;
       }
@@ -83,7 +96,6 @@ export default class Account extends Component<{}, State> {
         return;
       }
 
-      // Normalize resource into our UserData shape
       const res = data.resource;
       const normalized: UserData = {
         name: res.name ?? res.username ?? "",
@@ -120,19 +132,16 @@ export default class Account extends Component<{}, State> {
 
     return (
       <View style={styles.container}>
-        {/* اللوجو الخلفية */}
         <Image
           source={require("../../assets/images/logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
 
-        {/* مربع الترحيب */}
         <View style={styles.welcomeBox}>
           <Text style={styles.welcomeText}>أهلا بك في معمل دار الطب</Text>
         </View>
 
-        {/* الاسم */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>الاسم:</Text>
           <View style={styles.displayBox}>
@@ -141,7 +150,6 @@ export default class Account extends Component<{}, State> {
           </View>
         </View>
 
-        {/* الرقم */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>رقم الهاتف:</Text>
           <View style={styles.displayBox}>
@@ -150,7 +158,6 @@ export default class Account extends Component<{}, State> {
           </View>
         </View>
 
-        {/* الكوينز */}
         <View style={styles.coinsContainer}>
           <Text style={styles.labelcoins}>عدد الكوينز:</Text>
           <View style={styles.coinsBox}>
@@ -163,7 +170,6 @@ export default class Account extends Component<{}, State> {
           </View>
         </View>
 
-        {/* العنوان */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerValue}>
             📍 العنوان: ش أمام مدرسة الثانوية بنات بجوار مدرسة ميس بيرسون _ ملوي _ المنيا

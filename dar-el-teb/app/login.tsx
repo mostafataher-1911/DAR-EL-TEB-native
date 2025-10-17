@@ -4,13 +4,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback, 
+  TouchableWithoutFeedback,
   Keyboard,
   Image,
   StyleSheet,
   Dimensions,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -27,7 +26,7 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    // تسجيل listener لأي Notification يفتح التطبيق
+    // listener لأي Notification تفتح التطبيق
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         const screen = response.notification.request.content.data.screen;
@@ -40,68 +39,58 @@ export default function Login() {
     return () => subscription.remove();
   }, []);
 
-  const handleLogin = async () => {
-    setError("");
-    if (phone.length !== 10) {
-      setError("رقم الهاتف يجب أن يكون مكون من 10 أرقام بالضبط");
+const handleLogin = async () => {
+  setError("");
+  if (phone.length !== 10) {
+    setError("رقم الهاتف يجب أن يكون مكون من 10 أرقام بالضبط");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const fcmToken = await getFcmToken();
+    console.log("FCM Token:", fcmToken);
+
+    if (!fcmToken) {
+      setError("فشل الحصول على توكن الإشعارات");
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    const response = await fetch("https://apilab.runasp.net/api/ClientMobile/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "*/*",
+      },
+      body: JSON.stringify({
+        phone,
+        fcmToken,
+      }),
+    });
 
-    try {
-      const fcmToken = await getFcmToken();
-      if (!fcmToken) {
-        setError("فشل الحصول على توكن الإشعارات");
-        setLoading(false);
-        return;
-      }
+    const text = await response.text();
+    console.log("Response:", text);
 
-      const response = await fetch(
-        "https://apilab.runasp.net/api/ClientMobile/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${fcmToken}`,
-          },
-          body: JSON.stringify({ phone }),
-        }
-      );
+    let data = text ? JSON.parse(text) : null;
 
-      const text = await response.text();
-      let data;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch (e) {
-        setError("حدث خطأ في قراءة الرد من السيرفر");
-        setLoading(false);
-        return;
-      }
+    if (response.ok && data.success) {
+      await AsyncStorage.setItem("token", data.resource.token);
+      await AsyncStorage.setItem("username", data.resource.username);
+      await AsyncStorage.setItem("phoneNumber", data.resource.phoneNumber);
 
-      if (!data) {
-        setError("الرد من السيرفر غير صالح، حاول مرة أخرى لاحقاً");
-        setLoading(false);
-        return;
-      }
-
-      if (response.ok && data.success) {
-        await AsyncStorage.setItem("isLoggedIn", "true");
-        await AsyncStorage.setItem("token", data.resource.token);
-        await AsyncStorage.setItem("username", data.resource.username);
-        await AsyncStorage.setItem("phoneNumber", data.resource.phoneNumber);
-
-        router.replace("/(tabs)");
-      } else {
-        setError("فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
-      }
-    } catch (error) {
-      console.error("❌ Error:", error);
-      setError("حدث خطأ أثناء الاتصال بالسيرفر");
+      router.replace("/(tabs)");
+    } else {
+      setError(data.message || "فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
     }
+  } catch (error) {
+    console.error("❌ Error:", error);
+    setError("حدث خطأ أثناء الاتصال بالسيرفر");
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -149,7 +138,10 @@ export default function Login() {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
             <TouchableOpacity
-              style={[styles.button, (!phone || loading) && styles.buttonDisabled]}
+              style={[
+                styles.button,
+                (!phone || loading) && styles.buttonDisabled,
+              ]}
               onPress={handleLogin}
               disabled={!phone || loading}
             >
@@ -291,4 +283,3 @@ const styles = StyleSheet.create({
     fontSize: width * 0.035,
   },
 });
-

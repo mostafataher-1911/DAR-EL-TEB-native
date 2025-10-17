@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(143, 126, 126, 0.29)",
     borderRadius: 10,
     width: 70,
-    height: 65,
+    height: 60,
     justifyContent: "center",
     alignItems: "center",
     ...Platform.select({
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
       },
       android: {
-        elevation: 5,
+        elevation: 0,
       },
     }),
   },
