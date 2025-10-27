@@ -8,7 +8,11 @@
     "scheme": "darelteb",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-
+    "splash": {
+      "image": "./assets/images/LOGO-DARELTEB.png",
+      "backgroundColor": "#FFFFFF",
+      "resizeMode": "contain"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "darelteb.com",
@@ -17,12 +21,10 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/LOGO-DARELTEB.png",
-   
         "monochromeImage": "./assets/images/LOGO-DARELTEB.png"
       },
       "googleServicesFile": "./google-services.json",
@@ -30,7 +32,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "darelteb.android"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -41,17 +42,14 @@
         }
       ]
     ],
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/LOGO-DARELTEB.png"
     },
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-
     "extra": {
       "router": {},
       "eas": {
@@ -60,4 +58,3 @@
     }
   }
 }
-

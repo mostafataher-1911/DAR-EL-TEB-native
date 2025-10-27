@@ -78,12 +78,10 @@ const Stack = createNativeStackNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [rtlChecked, setRtlChecked] = useState(false);
+  const [rtlReady, setRtlReady] = useState(false);
 
-  // تسجيل Push Token
   useRegisterPushToken();
 
-  // إعداد الإشعارات (Android)
   useEffect(() => {
     if (Platform.OS === "android") {
       Notifications.setNotificationChannelAsync("default", {
@@ -96,32 +94,21 @@ export default function RootLayout() {
     }
   }, []);
 
-  // التحقق من RTL قبل أي رندر
+  // إعداد RTL الصحيح من أول مرة بدون كراش أو تصميم مكسور
   useEffect(() => {
-    async function checkRTL() {
-      if (I18nManager.isRTL) {
-        I18nManager.allowRTL(false);
-        I18nManager.forceRTL(false);
-
-        // إعادة تشغيل التطبيق بعد تعديل Native RTL
-        if (Platform.OS === "android") {
-          const RNRestart = require("react-native-restart").default;
-          RNRestart.Restart();
-        } else {
-          const Updates = await import("expo-updates");
-          Updates.reloadAsync();
-        }
-      } else {
-        // الاتجاه مضبوط، نسمح للرندر
-        setRtlChecked(true);
+    const setupRTL = async () => {
+      const shouldBeRTL = false; // خليه false دايمًا لو عايز اتجاه ثابت LTR
+      if (I18nManager.isRTL !== shouldBeRTL) {
+        I18nManager.allowRTL(shouldBeRTL);
+        I18nManager.forceRTL(shouldBeRTL);
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
-    }
-
-    checkRTL();
+      setRtlReady(true);
+    };
+    setupRTL();
   }, []);
 
-  // لو RTL مش مضبوط بعد، نعرض Splash مؤقت
-  if (!rtlChecked) {
+  if (!rtlReady) {
     return <SplashScreen />;
   }
 
@@ -132,7 +119,11 @@ export default function RootLayout() {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="TabsScreen" component={TabsScreen} />
-        <Stack.Screen name="ModalScreen" component={ModalScreen} options={{ presentation: "modal", headerShown: true }} />
+        <Stack.Screen
+          name="ModalScreen"
+          component={ModalScreen}
+          options={{ presentation: "modal", headerShown: true }}
+        />
         <Stack.Screen name="UnionDetails" component={UnionDetailsScreen} />
       </Stack.Navigator>
     </ThemeProvider>
