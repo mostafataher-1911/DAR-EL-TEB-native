@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-import { SafeAreaView } from "react-native-safe-area-context"; // ✅ التعديل هنا
+import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderWithSearch from "@/components/HeaderWithSearch";
 import SectionWithHorizontalScroll from "@/components/SectionWithHorizontalScroll";
 
@@ -44,12 +44,52 @@ export default function HomeScreen() {
           }),
         });
         const data2 = await res2.json();
+
         if (data2.success && data2.resource) {
-          setLabsData(data2.resource);
-          setFilteredLabs(data2.resource);
+          // ✅ نجمع التحاليل حسب الفئة
+            interface Lab {
+            id: string;
+            name: string;
+            imageUrl: string;
+            coins: number;
+            }
+
+            interface Category {
+            name: string;
+            }
+
+            interface Section {
+            category?: Category;
+            labs: Lab[];
+            }
+
+            interface GroupedLabs {
+            [key: string]: Lab[];
+            }
+
+            const grouped: GroupedLabs = {};
+
+            data2.resource.forEach((section: Section) => {
+            section.labs.forEach((lab: Lab) => {
+              const categoryName = section.category?.name || "غير مصنف";
+              if (!grouped[categoryName]) {
+              grouped[categoryName] = [];
+              }
+              grouped[categoryName].push(lab);
+            });
+            });
+
+          // نحولها لمصفوفة sections منظمة
+          const groupedArray = Object.keys(grouped).map((categoryName) => ({
+            category: { name: categoryName },
+            labs: grouped[categoryName],
+          }));
+
+          setLabsData(groupedArray);
+          setFilteredLabs(groupedArray);
         }
       } catch (err) {
-        console.log("Error fetching data:", err);
+        // console.log("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
@@ -77,7 +117,6 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}> 
-      {/* ✅ edges={["top"]} يمنع الطلوع فوق في Android */}
       <View style={styles.container}>
         <HeaderWithSearch
           onChangeText={handleSearch}
@@ -113,7 +152,13 @@ export default function HomeScreen() {
                   <SectionWithHorizontalScroll
                     key={index}
                     title={section.category?.name}
-                    backgroundColor={section.category?.colorHexa || "#005FA1"}
+                    backgroundColor={
+                      index % 3 === 0
+                        ? "#001D3CF2"
+                        : index % 3 === 1
+                        ? "#005FA1"
+                        : "#09BCDB"
+                    }
                     items={section.labs.map((lab: any) => ({
                       id: lab.id,
                       image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },
@@ -156,7 +201,7 @@ const styles = StyleSheet.create({
     width: wp("80%"),
     height: hp("25%"),
     borderRadius: wp("3%"),
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
   scrollContent: {
     paddingBottom: hp("5%"),
@@ -178,3 +223,4 @@ const styles = StyleSheet.create({
     color: "red",
   },
 });
+

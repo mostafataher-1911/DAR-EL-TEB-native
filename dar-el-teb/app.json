@@ -4,7 +4,7 @@
     "slug": "dar-el-teb",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo_square_1024.png",
+    "icon": "./assets/images/LOGO-DARELTEB.png",
     "scheme": "darelteb",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -21,9 +21,9 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/LOGO-DARELTEB.png",
+   
+        "monochromeImage": "./assets/images/LOGO-DARELTEB.png"
       },
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
@@ -36,7 +36,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo_square_1024.png",
+          "icon": "./assets/images/LOGO-DARELTEB.png",
           "color": "#ffffff"
         }
       ]
@@ -44,7 +44,7 @@
 
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/LOGO-DARELTEB.png"
     },
 
     "experiments": {

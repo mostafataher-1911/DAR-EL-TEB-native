@@ -1,14 +1,23 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const LogoutButton = () => {
-  const router = useRouter();
+  const navigation = useNavigation<any>();
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("isLoggedIn");
-    router.replace("/login"); // توجيه المستخدم لصفحة تسجيل الدخول
+    try {
+      await AsyncStorage.removeItem("isLoggedIn");
+
+      // ✅ Reset navigation stack completely
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "LoginScreen" }],
+      });
+    } catch (error) {
+      console.log("Logout error:", error);
+    }
   };
 
   return (

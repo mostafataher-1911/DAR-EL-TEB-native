@@ -7,7 +7,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,9 +16,11 @@ import SectionWithHorizontalScroll from "@/components/SectionWithHorizontalScrol
 
 const { width, height } = Dimensions.get("window");
 
-export default function UnionDetails() {
-  const { name, id } = useLocalSearchParams<{ name: string; id: string }>();
-  const router = useRouter();
+export default function UnionDetailsScreen() {
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  const { name, id } = route.params as { name: string; id: string };
 
   const [labsData, setLabsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,11 +54,9 @@ export default function UnionDetails() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
-
       {/* ✅ رأس الصفحة */}
       <SafeAreaView edges={["top"]} style={styles.customHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Animated.View entering={SlideInLeft.duration(400)}>
             <Ionicons name="arrow-back" size={width * 0.07} color="#fff" />
           </Animated.View>
@@ -84,7 +84,13 @@ export default function UnionDetails() {
               <SectionWithHorizontalScroll
                 key={index}
                 title={section.category?.name}
-                backgroundColor={section.category?.colorHexa || "#005FA1"}
+                backgroundColor={
+    index % 3 === 0
+      ? "#001D3CF2"  // اللون الأول
+      : index % 3 === 1
+      ? "#005FA1" // اللون الثاني
+      : "#09BCDB"   // اللون الثالث (غيره زي ما تحب)
+  }
                 items={section.labs.map((lab: any) => ({
                   id: lab.id,
                   image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },

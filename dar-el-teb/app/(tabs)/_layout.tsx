@@ -1,18 +1,27 @@
-import { Tabs } from "expo-router";
-import AntDesign from '@expo/vector-icons/AntDesign';
+
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function Layout() {
+// شاشاتك
+import AccountScreen from "./account";
+import UnionsScreen from "./unions";
+import HomeScreen from "./index";
+
+const Tab = createBottomTabNavigator();
+
+export default function TabsScreen() {
   return (
-    <Tabs
+    <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#005FA1", // اللون الأزرق عند التفعيل
-        tabBarInactiveTintColor: "#B9BCBE", // الرمادي عند عدم التفعيل
+        tabBarActiveTintColor: "#005FA1",
+        tabBarInactiveTintColor: "#B9BCBE",
       }}
     >
-      <Tabs.Screen
-        name="account"
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
         options={{
           title: "حسابي",
           tabBarIcon: ({ color, size }) => (
@@ -21,18 +30,9 @@ export default function Layout() {
         }}
       />
 
-      {/* <Tabs.Screen
-        name="coins"
-        options={{
-          title: "كوينز",
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="dollar-circle" size={size} color={color} />
-          ),
-        }}
-      /> */}
-
-      <Tabs.Screen
-        name="unions"
+      <Tab.Screen
+        name="Unions"
+        component={UnionsScreen}
         options={{
           title: "النقابات",
           tabBarIcon: ({ color, size }) => (
@@ -41,8 +41,9 @@ export default function Layout() {
         }}
       />
 
-      <Tabs.Screen
-        name="index"
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
         options={{
           title: "الرئيسية",
           tabBarIcon: ({ color, size }) => (
@@ -50,6 +51,6 @@ export default function Layout() {
           ),
         }}
       />
-    </Tabs>
+    </Tab.Navigator>
   );
 }

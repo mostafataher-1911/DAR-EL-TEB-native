@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -11,19 +12,32 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getFcmToken } from "../firebaseConfig";
 import * as Notifications from "expo-notifications";
+import { useNavigation } from "@react-navigation/native";
+
 
 const { width, height } = Dimensions.get("window");
 
-export default function Login() {
+type RootStackParamList = {
+  SplashScreen: undefined;
+  LoginScreen: undefined;
+  TabsScreen: undefined;
+};
+
+type NavigationProps = NativeStackNavigationProp<
+  RootStackParamList,
+  "LoginScreen"
+>;
+export default function LoginScreen() {
+ const navigation = useNavigation<NavigationProps>();
+
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     // listener لأي Notification تفتح التطبيق
@@ -31,66 +45,69 @@ export default function Login() {
       (response) => {
         const screen = response.notification.request.content.data.screen;
         if (screen) {
-          router.push("/(tabs)");
+          navigation.replace("TabsScreen");
         }
       }
     );
 
     return () => subscription.remove();
-  }, []);
+  }, [navigation]);
 
-const handleLogin = async () => {
-  setError("");
-  if (phone.length !== 10) {
-    setError("رقم الهاتف يجب أن يكون مكون من 10 أرقام بالضبط");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const fcmToken = await getFcmToken();
-    console.log("FCM Token:", fcmToken);
-
-    if (!fcmToken) {
-      setError("فشل الحصول على توكن الإشعارات");
-      setLoading(false);
+  const handleLogin = async () => {
+    setError("");
+    if (phone.length !== 10) {
+      setError("رقم الهاتف يجب أن يكون مكون من 10 أرقام بالضبط");
       return;
     }
 
-    const response = await fetch("https://apilab.runasp.net/api/ClientMobile/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "*/*",
-      },
-      body: JSON.stringify({
-        phone,
-        fcmToken,
-      }),
-    });
+    setLoading(true);
 
-    const text = await response.text();
-    console.log("Response:", text);
+    try {
+      const fcmToken = await getFcmToken();
+      // console.log("FCM Token:", fcmToken);
 
-    let data = text ? JSON.parse(text) : null;
+      if (!fcmToken) {
+        setError("فشل الحصول على توكن الإشعارات");
+        setLoading(false);
+        return;
+      }
 
-    if (response.ok && data.success) {
-      await AsyncStorage.setItem("token", data.resource.token);
-      await AsyncStorage.setItem("username", data.resource.username);
-      await AsyncStorage.setItem("phoneNumber", data.resource.phoneNumber);
+      const response = await fetch(
+        "https://apilab.runasp.net/api/ClientMobile/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+          body: JSON.stringify({
+            phone,
+            fcmToken,
+          }),
+        }
+      );
 
-      router.replace("/(tabs)");
-    } else {
-      setError(data.message || "فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
+      const text = await response.text();
+      // console.log("Response:", text);
+
+      let data = text ? JSON.parse(text) : null;
+
+      if (response.ok && data.success) {
+        await AsyncStorage.setItem("token", data.resource.token);
+        await AsyncStorage.setItem("username", data.resource.username);
+        await AsyncStorage.setItem("phoneNumber", data.resource.phoneNumber);
+
+        navigation.replace("TabsScreen");
+      } else {
+        setError("فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
+      }
+    } catch (error) {
+      // console.error("❌ Error:", error);
+      setError("حدث خطأ أثناء الاتصال بالسيرفر");
     }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    setError("حدث خطأ أثناء الاتصال بالسيرفر");
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -168,6 +185,7 @@ const handleLogin = async () => {
     </TouchableWithoutFeedback>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", alignItems: "center" },

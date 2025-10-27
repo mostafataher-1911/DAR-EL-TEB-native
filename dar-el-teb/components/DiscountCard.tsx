@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   innerBox: {
-    width: width * 0.35, // ✅ بدل "38%" استخدم قيمة ثابتة بالبيكسل حسب الشاشة
+    width: width * 0.45, // ✅ بدل "38%" استخدم قيمة ثابتة بالبيكسل حسب الشاشة
     minWidth: 130,
     height: "75%",
     borderRadius: 10,

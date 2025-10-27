@@ -35,7 +35,7 @@ export default class Account extends Component<{}, State> {
       const token = await AsyncStorage.getItem("token");
 
       if (!token) {
-        console.warn("⚠️ No token found — redirecting to Login");
+        // console.warn("⚠️ No token found — redirecting to Login");
         Alert.alert("تنبيه", "يجب تسجيل الدخول أولاً", [
           {
             text: "حسناً",
@@ -46,7 +46,7 @@ export default class Account extends Component<{}, State> {
         return;
       }
 
-      console.log("📦 Token found:", token);
+      // console.log("📦 Token found:", token);
 
       const response = await fetch("https://apilab.runasp.net/api/ClientMobile/GetProfile", {
         method: "GET",
@@ -56,11 +56,11 @@ export default class Account extends Component<{}, State> {
         },
       });
 
-      console.log("📡 Response status:", response.status);
+      // console.log("📡 Response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ Fetch failed:", response.status, errorText);
+        // console.error("❌ Fetch failed:", response.status, errorText);
 
         if (response.status === 401) {
           // ✅ التوكن منتهي أو غير صالح → يرجعه للـ Login
@@ -74,7 +74,7 @@ export default class Account extends Component<{}, State> {
 
       const text = await response.text();
       if (!text.trim()) {
-        console.error("⚠️ Empty response body");
+        // console.error("⚠️ Empty response body");
         this.setState({ loading: false });
         return;
       }
@@ -83,15 +83,15 @@ export default class Account extends Component<{}, State> {
       try {
         data = JSON.parse(text);
       } catch (err) {
-        console.error("❌ JSON parse error:", err, "\nResponse:", text);
+        // console.error("❌ JSON parse error:", err, "\nResponse:", text);
         this.setState({ loading: false });
         return;
       }
 
-      console.log("✅ User Profile Data:", data);
+      // console.log("✅ User Profile Data:", data);
 
       if (!data?.resource) {
-        console.error("⚠️ Invalid data format:", data);
+        // console.error("⚠️ Invalid data format:", data);
         this.setState({ loading: false });
         return;
       }
@@ -106,7 +106,7 @@ export default class Account extends Component<{}, State> {
 
       this.setState({ userData: normalized, loading: false });
     } catch (error) {
-      console.error("🔥 Error fetching profile:", error);
+      // console.error("🔥 Error fetching profile:", error);
       this.setState({ loading: false });
     }
   }
