@@ -25,32 +25,48 @@ export default function UnionDetailsScreen() {
   const [labsData, setLabsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
+useEffect(() => {
+  if (!id) return;
 
-    fetch("https://apilab.runasp.net/api/ClientMobile/GetMedicalLabs", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "",
-        unionId: id,
-      }),
+  fetch("https://apilab.runasp.net/api/ClientMobile/GetMedicalLabs", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "",
+      unionId: id,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success && data.resource) {
+        // 👇 نجمع التحاليل حسب النوع
+        const grouped: Record<string, any> = {};
+
+        data.resource.forEach((section: any) => {
+          const categoryName = section.category?.name || "غير محدد";
+          if (!grouped[categoryName]) grouped[categoryName] = [];
+          grouped[categoryName].push(...section.labs);
+        });
+
+        // نحول الـ grouped object لمصفوفة جاهزة للعرض
+        const groupedArray = Object.keys(grouped).map((key) => ({
+          category: { name: key },
+          labs: grouped[key],
+        }));
+
+        setLabsData(groupedArray);
+      }
+      setLoading(false);
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.resource) {
-          setLabsData(data.resource);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log("Error fetching labs:", err);
-        setLoading(false);
-      });
-  }, [id]);
+    .catch((err) => {
+      console.log("Error fetching labs:", err);
+      setLoading(false);
+    });
+}, [id]);
+
 
   return (
     <>

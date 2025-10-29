@@ -137,6 +137,7 @@
 //     height: width * 0.55,
 //   },
 // });
+
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Image, Animated, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -153,7 +154,7 @@ type NavigationProps = NativeStackNavigationProp<
   "SplashScreen"
 >;
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function SplashScreen() {
   const navigation = useNavigation<NavigationProps>();
@@ -164,22 +165,25 @@ export default function SplashScreen() {
   const logoOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // ⏳ انتظر ثانيتين قبل بدء الأنيميشن
     const startTimeout = setTimeout(() => {
-      // 1️⃣ الدائرة تكبر وتملأ الشاشة
+      // حساب أكبر قطر لتغطية الشاشة
+      const maxCircleDiameter = Math.sqrt(width * width + height * height);
+      const scaleFactor = maxCircleDiameter / 20; // 20 هو حجم البداية للدائرة
+
+      // 1️⃣ تكبير الدائرة لتغطي الشاشة
       Animated.timing(circleScale, {
-      toValue: 30,
-  duration: 2000,
-  useNativeDriver: true,
+        toValue: scaleFactor,
+        duration: 2000,
+        useNativeDriver: true,
       }).start(() => {
-        // 2️⃣ تخفي الدائرة تدريجياً
+        // 2️⃣ اختفاء الدائرة تدريجياً
         Animated.timing(circleOpacity, {
           toValue: 0,
           duration: 800,
           useNativeDriver: true,
         }).start();
 
-        // 3️⃣ يظهر اللوجو بانيميشن ناعم بعد الدائرة
+        // 3️⃣ ظهور اللوجو بعد الدائرة
         Animated.parallel([
           Animated.timing(logoScale, {
             toValue: 1,
@@ -192,7 +196,7 @@ export default function SplashScreen() {
             useNativeDriver: true,
           }),
         ]).start(() => {
-          // 4️⃣ بعد شوية اللوجو يختفي ويروح لصفحة اللوجن
+          // 4️⃣ بعد ثانية، إخفاء اللوجو والانتقال للوجن
           setTimeout(() => {
             Animated.parallel([
               Animated.timing(logoOpacity, {
@@ -211,7 +215,7 @@ export default function SplashScreen() {
           }, 1000);
         });
       });
-    }, 2000); // ⏳ يبدأ بعد ثانيتين من فتح التطبيق
+    }, 2000);
 
     return () => clearTimeout(startTimeout);
   }, []);
@@ -264,8 +268,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   circle: {
-    width: 10,
-    height: 10,
+    width: 20,
+    height: 20,
     borderRadius: 50,
     backgroundColor: "#005FA1",
     position: "absolute",
