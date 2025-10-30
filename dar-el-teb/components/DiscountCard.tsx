@@ -25,7 +25,7 @@ const DiscountCard: React.FC<DiscountCardProps> = ({
   onPress,
 }) => {
   return (
-    <TouchableOpacity style={styles.cardWrapper}  activeOpacity={0.9}>
+    <TouchableOpacity style={styles.cardWrapper} onPress={onPress} activeOpacity={0.9}>
       <ImageBackground
         source={imageSource}
         style={styles.card}

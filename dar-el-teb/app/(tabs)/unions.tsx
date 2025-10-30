@@ -9,8 +9,14 @@ import {
 } from "react-native";
 import HeaderWithSearch from "@/components/HeaderWithSearch";
 import DiscountCard from "@/components/DiscountCard";
-
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 export default function Unions() {
+  type RootStackParamList = {
+    UnionDetails: { id: string | number; name: string };
+    // add other routes here if needed
+  };
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [unions, setUnions] = useState([]);
   const [filteredUnions, setFilteredUnions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,6 +50,13 @@ export default function Unions() {
     setFilteredUnions(filtered);
   };
 
+  const handleNavigate = (union: any) => {
+    navigation.navigate("UnionDetails", {
+      id: union.id,
+      name: union.name,
+    });
+  };
+
   return (
     <View style={{ marginTop: Platform.select({ ios: 50, android: 40 }), flex: 1 }}>
       <HeaderWithSearch
@@ -70,6 +83,7 @@ export default function Unions() {
                 imageSource={{ uri: `https://apilab.runasp.net${union.imageUrl}` }}
                 unionName={union.name}
                 discount={`${union.disCount}%`}
+                onPress={() => handleNavigate(union)}
               />
             ))
           ) : (
