@@ -111,7 +111,7 @@ useEffect(() => {
                   id: lab.id,
                   image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },
                   label: lab.name,
-                  coins: lab.coins,
+                  // coins: lab.coins,
                 }))}
               />
             ))}

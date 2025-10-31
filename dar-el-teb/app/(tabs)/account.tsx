@@ -6,6 +6,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 import LogoutButton from "@/components/LogoutButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router"; // ✅ لإرجاع المستخدم إلى شاشة تسجيل الدخول
+import DeleteAccountButton from "@/components/DeleteAccountButton";
 
 type UserData = {
   name?: string;
@@ -159,7 +160,7 @@ export default class Account extends Component<{}, State> {
         </View>
 
         <View style={styles.coinsContainer}>
-          <Text style={styles.labelcoins}>عدد الكوينز:</Text>
+          {/* <Text style={styles.labelcoins}>عدد الكوينز:</Text>
           <View style={styles.coinsBox}>
             <Image
               source={require("../../assets/images/Group 27.png")}
@@ -167,7 +168,8 @@ export default class Account extends Component<{}, State> {
               resizeMode="contain"
             />
             <Text style={styles.coinsValue}>{userData.bonus ?? 0}</Text>
-          </View>
+          </View> */}
+
         </View>
 
         <View style={styles.footerContainer}>
@@ -179,7 +181,12 @@ export default class Account extends Component<{}, State> {
         <View style={{ marginTop: hp("3%") }}>
           <LogoutButton />
         </View>
+        <View style={{ marginTop: hp("1%") }}>
+  <DeleteAccountButton />
+</View>
+
       </View>
+      
     );
   }
 }

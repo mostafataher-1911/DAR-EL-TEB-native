@@ -1,4 +1,3 @@
-// NotificationService.js
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { useEffect } from "react";
@@ -13,7 +12,15 @@ export default function useRegisterPushToken() {
       // console.log("📩 Notification Received:", notification);
     });
 
-    return () => subscription.remove();
+    // ✅ لو عايز تتعامل مع الضغط على الإشعار (فتح صفحة معينة مثلاً)
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      // console.log("🟢 Notification clicked:", response);
+    });
+
+    return () => {
+      subscription.remove();
+      responseListener.remove();
+    };
   }, []);
 
   async function registerForPushNotificationsAsync() {
@@ -39,7 +46,7 @@ export default function useRegisterPushToken() {
     // 🟢 الحصول على Expo Push Token (مع projectId)
     const token = (
       await Notifications.getExpoPushTokenAsync({
-        projectId: "b1f6acf7-dd88-4640-8271-f1028090b7c0", // 👈 استبدلها بالـ Project ID من app.json
+        projectId: "b1f6acf7-dd88-4640-8271-f1028090b7c0",
       })
     ).data;
 
@@ -55,10 +62,10 @@ export default function useRegisterPushToken() {
 
       console.log("📡 Server response:", await response.text());
     } catch (error) {
-      // console.log("❌ Error sending token:", error);
+      console.log("❌ Error sending token:", error);
     }
 
-    // 🔵 إعداد قناة الإشعارات للأندرويد
+    // 🔵 إعداد قناة الإشعارات للأندرويد فقط
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
         name: "default",
@@ -68,5 +75,14 @@ export default function useRegisterPushToken() {
         lightColor: "#FF231F7C",
       });
     }
+
+    // 🟢 إعداد السلوك الافتراضي لـ iOS
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
   }
 }

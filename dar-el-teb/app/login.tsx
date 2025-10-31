@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -15,10 +14,9 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { getFcmToken } from "../firebaseConfig";
 import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 import { useNavigation } from "@react-navigation/native";
-
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,12 +30,42 @@ type NavigationProps = NativeStackNavigationProp<
   RootStackParamList,
   "LoginScreen"
 >;
+
 export default function LoginScreen() {
- const navigation = useNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
 
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 📩 إعداد Expo Notifications
+  const registerForPushNotificationsAsync = async () => {
+    if (!Device.isDevice) {
+      alert("Push notifications require a physical device.");
+      return null;
+    }
+
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      alert("فشل في الحصول على إذن الإشعارات");
+      return null;
+    }
+
+    const token = (
+      await Notifications.getExpoPushTokenAsync({
+        projectId: "b1f6acf7-dd88-4640-8271-f1028090b7c0", // 👈 استخدم الـ projectId من app.json
+      })
+    ).data;
+
+    return token;
+  };
 
   useEffect(() => {
     // listener لأي Notification تفتح التطبيق
@@ -53,9 +81,20 @@ export default function LoginScreen() {
     return () => subscription.remove();
   }, [navigation]);
 
+  // 🧩 تحويل الأرقام العربية إلى إنجليزية
+  const convertArabicToEnglishNumbers = (input: string) => {
+    return input.replace(/[\u0660-\u0669]/g, (d) => {
+      return String(d.charCodeAt(0) - 1632);
+    });
+  };
+
   const handleLogin = async () => {
     setError("");
-    if (phone.length !== 10) {
+
+    // 🔹 نحول الرقم قبل أي شيء
+    const normalizedPhone = convertArabicToEnglishNumbers(phone);
+
+    if (normalizedPhone.length !== 10) {
       setError("رقم الهاتف يجب أن يكون مكون من 10 أرقام بالضبط");
       return;
     }
@@ -63,10 +102,9 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const fcmToken = await getFcmToken();
-      // console.log("FCM Token:", fcmToken);
+      const expoToken = await registerForPushNotificationsAsync();
 
-      if (!fcmToken) {
+      if (!expoToken) {
         setError("فشل الحصول على توكن الإشعارات");
         setLoading(false);
         return;
@@ -81,15 +119,13 @@ export default function LoginScreen() {
             Accept: "*/*",
           },
           body: JSON.stringify({
-            phone,
-            fcmToken,
+            phone: normalizedPhone, // ✅ نرسل الرقم بعد التحويل
+            fcmToken: expoToken,
           }),
         }
       );
 
       const text = await response.text();
-      // console.log("Response:", text);
-
       let data = text ? JSON.parse(text) : null;
 
       if (response.ok && data.success) {
@@ -102,7 +138,6 @@ export default function LoginScreen() {
         setError("فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
       }
     } catch (error) {
-      // console.error("❌ Error:", error);
       setError("حدث خطأ أثناء الاتصال بالسيرفر");
     }
 
@@ -185,7 +220,6 @@ export default function LoginScreen() {
     </TouchableWithoutFeedback>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", alignItems: "center" },
