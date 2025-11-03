@@ -1,9 +1,10 @@
-
 import { useEffect, useState } from "react";
-import { I18nManager, Platform } from "react-native";
+import { I18nManager, Platform, Alert } from "react-native";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
+import messaging from '@react-native-firebase/messaging';
+import Toast from 'react-native-toast-message';
 
 // الشاشات
 import SplashScreen from "./SplashScreen";
@@ -14,10 +15,6 @@ import UnionDetailsScreen from "./unionDetails";
 
 // Hooks
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import useRegisterPushToken from "../NotificationService";
-
-// Notifications
-import * as Notifications from "expo-notifications";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,24 +22,37 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [rtlReady, setRtlReady] = useState(false);
 
-  useRegisterPushToken();
-
+  // إعداد إشعارات FCM
   useEffect(() => {
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "Default Channel",
-        importance: Notifications.AndroidImportance.HIGH,
-        sound: "default",
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
+    const requestPermission = async () => {
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) console.log('🔔 Notification permission granted.');
+    };
+
+    requestPermission();
+
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('📩 Foreground message:', remoteMessage);
+      Toast.show({
+  type: 'info',
+  text1: remoteMessage.notification?.title ?? "تنبيه",
+  text2: remoteMessage.notification?.body ?? "لديك إشعار جديد",
+  position: 'top',
+  visibilityTime: 4000,
+});
+    });
+
+    return unsubscribe;
   }, []);
 
-  // إعداد RTL الصحيح من أول مرة بدون كراش أو تصميم مكسور
+  // RTL Setup
   useEffect(() => {
     const setupRTL = async () => {
-      const shouldBeRTL = false; // خليه false دايمًا لو عايز اتجاه ثابت LTR
+      const shouldBeRTL = false;
       if (I18nManager.isRTL !== shouldBeRTL) {
         I18nManager.allowRTL(shouldBeRTL);
         I18nManager.forceRTL(shouldBeRTL);
@@ -53,9 +63,7 @@ export default function RootLayout() {
     setupRTL();
   }, []);
 
-  if (!rtlReady) {
-    return <SplashScreen />;
-  }
+  if (!rtlReady) return <SplashScreen />;
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -64,13 +72,12 @@ export default function RootLayout() {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="TabsScreen" component={TabsScreen} />
-        <Stack.Screen
-          name="ModalScreen"
-          component={ModalScreen}
-          options={{ presentation: "modal", headerShown: true }}
-        />
+        <Stack.Screen name="ModalScreen" component={ModalScreen} options={{ presentation: "modal", headerShown: true }} />
         <Stack.Screen name="UnionDetails" component={UnionDetailsScreen} />
       </Stack.Navigator>
+      
+    {/* ✅ Toast component */}
+    <Toast />
     </ThemeProvider>
   );
 }

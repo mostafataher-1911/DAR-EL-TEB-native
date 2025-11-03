@@ -46,10 +46,10 @@ const SectionWithHorizontalScroll: React.FC<SectionWithHorizontalScrollProps> = 
             {/* البوكس السفلي للنصوص */}
             <View style={styles.textBox}>
               <Text style={styles.label}>{item.label}</Text>
-              {/* <View style={styles.coinsRow}>
+              <View style={styles.coinsRow}>
                 <Text style={styles.coinsText}>كوينز</Text>
                 <Text style={styles.coinsValue}>{item.coins}</Text>
-              </View> */}
+              </View>
             </View>
           </View>
         ))}

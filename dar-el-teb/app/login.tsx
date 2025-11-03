@@ -14,8 +14,7 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
+import messaging from "@react-native-firebase/messaging"; // ✅ بديل expo-notifications
 import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
@@ -38,47 +37,54 @@ export default function LoginScreen() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 📩 إعداد Expo Notifications
-  const registerForPushNotificationsAsync = async () => {
-    if (!Device.isDevice) {
-      alert("Push notifications require a physical device.");
-      return null;
+  // ✅ إعداد Firebase Cloud Messaging بدلاً من Expo Notifications
+  const registerForPushNotificationsAsync = async (): Promise<string> => {
+    try {
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (!enabled) {
+        console.log("🚫 Notification permission not granted");
+        return "test-token";
+      }
+
+      const fcmToken = await messaging().getToken();
+      console.log("📱 FCM token:", fcmToken);
+      return fcmToken || "test-token";
+    } catch (err) {
+      console.log("⚠️ Error getting FCM token:", err);
+      return "test-token";
     }
-
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== "granted") {
-      alert("فشل في الحصول على إذن الإشعارات");
-      return null;
-    }
-
-    const token = (
-      await Notifications.getExpoPushTokenAsync({
-        projectId: "b1f6acf7-dd88-4640-8271-f1028090b7c0", // 👈 استخدم الـ projectId من app.json
-      })
-    ).data;
-
-    return token;
   };
 
   useEffect(() => {
-    // listener لأي Notification تفتح التطبيق
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const screen = response.notification.request.content.data.screen;
-        if (screen) {
+    // 📩 لو المستخدم ضغط على إشعار
+    const unsubscribe = messaging().onNotificationOpenedApp((remoteMessage) => {
+      if (remoteMessage?.data?.screen) {
+        navigation.replace("TabsScreen");
+      }
+    });
+
+    // 📦 لو التطبيق اتفتح من حالة quit بسبب إشعار
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage?.data?.screen) {
           navigation.replace("TabsScreen");
         }
-      }
-    );
+      });
 
-    return () => subscription.remove();
+    // 📨 استقبال الإشعارات أثناء فتح التطبيق
+    const unsubscribeOnMessage = messaging().onMessage(async (remoteMessage) => {
+      console.log("📨 Notification received in foreground:", remoteMessage);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeOnMessage();
+    };
   }, [navigation]);
 
   // 🧩 تحويل الأرقام العربية إلى إنجليزية
@@ -88,10 +94,9 @@ export default function LoginScreen() {
     });
   };
 
+  // ✅ تسجيل الدخول
   const handleLogin = async () => {
     setError("");
-
-    // 🔹 نحول الرقم قبل أي شيء
     const normalizedPhone = convertArabicToEnglishNumbers(phone);
 
     if (normalizedPhone.length !== 10) {
@@ -102,33 +107,26 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const expoToken = await registerForPushNotificationsAsync();
+      const fcmToken = await registerForPushNotificationsAsync();
+      console.log("🚀 Token used for login:", fcmToken);
 
-      if (!expoToken) {
-        setError("فشل الحصول على توكن الإشعارات");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(
-        "https://apilab.runasp.net/api/ClientMobile/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-          },
-          body: JSON.stringify({
-            phone: normalizedPhone, // ✅ نرسل الرقم بعد التحويل
-            fcmToken: expoToken,
-          }),
-        }
-      );
+      const response = await fetch("https://apilab.runasp.net/api/ClientMobile/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+        },
+        body: JSON.stringify({
+          phone: normalizedPhone,
+          fcmToken: fcmToken || "test-token",
+        }),
+      });
 
       const text = await response.text();
-      let data = text ? JSON.parse(text) : null;
+      const data = text ? JSON.parse(text) : null;
+      console.log("📩 Response data:", data);
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         await AsyncStorage.setItem("token", data.resource.token);
         await AsyncStorage.setItem("username", data.resource.username);
         await AsyncStorage.setItem("phoneNumber", data.resource.phoneNumber);
@@ -137,13 +135,13 @@ export default function LoginScreen() {
       } else {
         setError("فشل تسجيل الدخول، تأكد من صحة رقم الهاتف");
       }
-    } catch (error) {
+    } catch (err) {
+      console.log("❌ Network error:", err);
       setError("حدث خطأ أثناء الاتصال بالسيرفر");
     }
 
     setLoading(false);
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAwareScrollView
