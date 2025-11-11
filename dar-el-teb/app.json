@@ -8,13 +8,11 @@
     "scheme": "darelteb",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-
     "splash": {
       "image": "./assets/images/LOGO-DARELTEB.png",
       "backgroundColor": "#FFFFFF",
       "resizeMode": "contain"
     },
-
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.darelteb.com",
@@ -22,40 +20,76 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "NSUserNotificationsUsageDescription": "نحتاج صلاحيات الإشعارات لإرسال التنبيهات والتحديثات المهمة لك"
       }
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/LOGO-DARELTEB.png",
         "backgroundColor": "#E6F4FE"
       },
-      "package": "com.darelteb.app",
+      "package": "com.dareelteb.app",
       "versionCode": 11,
       "googleServicesFile": "./google-services.json",
-      "permissions": ["NOTIFICATIONS"],
+      "permissions": [
+        "NOTIFICATIONS",
+        "FOREGROUND_SERVICE",
+        "WAKE_LOCK"
+      ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-
-    "plugins": ["expo-router"],
-
+    "plugins": [
+      "@react-native-firebase/app",
+      [
+        "@react-native-firebase/messaging",
+        {
+          "androidNotificationChannelId": "high-priority-channel"
+        }
+      ],
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "minSdkVersion": 24,
+            "enableProguardInReleaseBuilds": true,
+            "extraMavenRepos": [
+              "https://maven.google.com"
+            ],
+            "googleServicesFile": "./google-services.json",
+            "enableMinifyInReleaseBuilds": true
+          },
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
     "web": {
       "output": "static",
       "favicon": "./assets/images/LOGO-DARELTEB.png"
     },
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
-
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "b1f6acf7-dd88-4640-8271-f1028090b7c0"
+        "projectId": "330b3e1e-4f74-4527-ade6-fd12591c0841"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "owner": "taher1911"
   }
 }

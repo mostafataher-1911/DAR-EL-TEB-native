@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:863920819195:android:653f1ed85d7659fc61d95e",
+        "android_client_info": {
+          "package_name": "com.dareelteb.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq0i29Zw75jDzj0aA2FUhv901Z6Y2sbbE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:863920819195:android:51c6f2f87857c4a861d95e",
         "android_client_info": {
           "package_name": "com.darelteb.app"

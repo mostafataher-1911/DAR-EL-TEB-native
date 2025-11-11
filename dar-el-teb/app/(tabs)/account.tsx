@@ -181,9 +181,9 @@ export default class Account extends Component<{}, State> {
         <View style={{ marginTop: hp("3%") }}>
           <LogoutButton />
         </View>
-        {/* <View style={{ marginTop: hp("1%") }}>
+        <View style={{ marginTop: hp("1%") }}>
   <DeleteAccountButton />
-</View> */}
+</View>
 
       </View>
       
