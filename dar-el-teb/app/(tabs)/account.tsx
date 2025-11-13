@@ -173,17 +173,17 @@ export default class Account extends Component<{}, State> {
         </View>
 
         <View style={styles.footerContainer}>
-          <Text style={styles.footerValue}>
+          {/* <Text style={styles.footerValue}>
             📍 العنوان: ش أمام مدرسة الثانوية بنات بجوار مدرسة ميس بيرسون _ ملوي _ المنيا
-          </Text>
+          </Text> */}
         </View>
 
         <View style={{ marginTop: hp("3%") }}>
           <LogoutButton />
         </View>
-        <View style={{ marginTop: hp("1%") }}>
+        {/* <View style={{ marginTop: hp("1%") }}>
   <DeleteAccountButton />
-</View>
+</View> */}
 
       </View>
       

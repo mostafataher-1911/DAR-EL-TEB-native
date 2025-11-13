@@ -172,9 +172,9 @@ export default function UnionDetailsScreen() {
 
           {/* ✅ الفوتر */}
           <View style={styles.footerContainer}>
-            <Text style={styles.footerValue}>
+            {/* <Text style={styles.footerValue}>
               📍 العنوان: ش أمام مدرسة الثانوية بنات بجوار مدرسة ميس بيرسون _ ملوي _ المنيا
-            </Text>
+            </Text> */}
           </View>
         </ScrollView>
       )}
