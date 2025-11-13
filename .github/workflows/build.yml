@@ -1,0 +1,43 @@
+name: Build Android AAB
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        cd dar-el-teb
+        npm install
+      
+    - name: Build AAB
+      run: |
+        cd dar-el-teb/android
+        chmod +x gradlew
+        ./gradlew bundleRelease
+        
+    - name: Upload AAB artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-aab
+        path: dar-el-teb/android/app/build/outputs/bundle/release/*.aab
+        retention-days: 30 
