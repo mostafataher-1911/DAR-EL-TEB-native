@@ -8,7 +8,7 @@ import AccountScreen from "./account";
 import UnionsScreen from "./unions";
 import HomeScreen from "./index";
 import LabLocationScreen from "./LabLocationScreen"; // تأكد من أن المسار صحيح
-
+import OffersScreen from "./offers";
 const Tab = createBottomTabNavigator();
 
 export default function TabsScreen() {
@@ -30,7 +30,7 @@ export default function TabsScreen() {
 
   return (
     <Tab.Navigator
-      initialRouteName="Home" 
+      initialRouteName="OffersScreen" 
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#005FA1",
@@ -44,6 +44,16 @@ export default function TabsScreen() {
           title: "الرئيسية",
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+       <Tab.Screen
+        name="OffersScreen"
+        component={OffersScreen}
+        options={{
+          title: 'العروض',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="local-offer" size={size} color={color} />
           ),
         }}
       />

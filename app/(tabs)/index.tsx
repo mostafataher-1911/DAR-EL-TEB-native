@@ -2,9 +2,10 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  Image, 
   ScrollView, 
-  ActivityIndicator 
+  ActivityIndicator,
+  StatusBar,
+  Platform 
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
@@ -13,7 +14,6 @@ import HeaderWithSearch from "@/components/HeaderWithSearch";
 import SectionWithHorizontalScroll from "@/components/SectionWithHorizontalScroll";
 
 export default function HomeScreen() {
-  const [banners, setBanners] = useState<any[]>([]);
   const [labsData, setLabsData] = useState<any[]>([]);
   const [filteredLabs, setFilteredLabs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,18 +21,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res1 = await fetch("https://apilab.runasp.net/api/ClientMobile/GetResponserImage", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({}),
-        });
-        const data1 = await res1.json();
-        if (data1.success && data1.resource) setBanners(data1.resource);
-
-        const res2 = await fetch("https://apilab.runasp.net/api/ClientMobile/GetMedicalLabs", {
+        const res = await fetch("https://apilab.runasp.net/api/ClientMobile/GetMedicalLabs", {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -43,41 +32,41 @@ export default function HomeScreen() {
             unionId: "00000000-0000-0000-0000-000000000000",
           }),
         });
-        const data2 = await res2.json();
+        const data = await res.json();
 
-        if (data2.success && data2.resource) {
+        if (data.success && data.resource) {
           // ✅ نجمع التحاليل حسب الفئة
-            interface Lab {
+          interface Lab {
             id: string;
             name: string;
             imageUrl: string;
             coins: number;
-            }
+          }
 
-            interface Category {
+          interface Category {
             name: string;
-            }
+          }
 
-            interface Section {
+          interface Section {
             category?: Category;
             labs: Lab[];
-            }
+          }
 
-            interface GroupedLabs {
+          interface GroupedLabs {
             [key: string]: Lab[];
-            }
+          }
 
-            const grouped: GroupedLabs = {};
+          const grouped: GroupedLabs = {};
 
-            data2.resource.forEach((section: Section) => {
+          data.resource.forEach((section: Section) => {
             section.labs.forEach((lab: Lab) => {
               const categoryName = section.category?.name || "غير مصنف";
               if (!grouped[categoryName]) {
-              grouped[categoryName] = [];
+                grouped[categoryName] = [];
               }
               grouped[categoryName].push(lab);
             });
-            });
+          });
 
           // نحولها لمصفوفة sections منظمة
           const groupedArray = Object.keys(grouped).map((categoryName) => ({
@@ -89,7 +78,7 @@ export default function HomeScreen() {
           setFilteredLabs(groupedArray);
         }
       } catch (err) {
-        // console.log("Error fetching data:", err);
+        console.log("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
@@ -117,11 +106,15 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}> 
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <View style={styles.container}>
-        <HeaderWithSearch
-          onChangeText={handleSearch}
-          searchPlaceholder="ابحث عن نوع التحليل"
-        />
+        {/* Header مع ضبط المسافات */}
+        <View style={styles.headerContainer}>
+          <HeaderWithSearch
+            onChangeText={handleSearch}
+            searchPlaceholder="ابحث عن نوع التحليل"
+          />
+        </View>
 
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -129,49 +122,36 @@ export default function HomeScreen() {
             <Text style={styles.loadingText}>جاري التحميل...</Text>
           </View>
         ) : (
-          <>
-            <View style={styles.bannerWrapper}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.bannerContainer}
-              >
-                {banners.map((item, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: `https://apilab.runasp.net${item.imageUrl}` }}
-                    style={styles.image}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-              {filteredLabs.length > 0 ? (
-                filteredLabs.map((section, index) => (
-                  <SectionWithHorizontalScroll
-                    key={index}
-                    title={section.category?.name}
-                    backgroundColor={
-                      index % 3 === 0
-                        ? "#001D3CF2"
-                        : index % 3 === 1
-                        ? "#005FA1"
-                        : "#09BCDB"
-                    }
-                    items={section.labs.map((lab: any) => ({
-                      id: lab.id,
-                      image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },
-                      label: lab.name,
-                      coins: lab.coins,
-                    }))}
-                  />
-                ))
-              ) : (
+          <ScrollView 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {filteredLabs.length > 0 ? (
+              filteredLabs.map((section, index) => (
+                <SectionWithHorizontalScroll
+                  key={index}
+                  title={section.category?.name}
+                  backgroundColor={
+                    index % 3 === 0
+                      ? "#001D3CF2"
+                      : index % 3 === 1
+                      ? "#005FA1"
+                      : "#09BCDB"
+                  }
+                  items={section.labs.map((lab: any) => ({
+                    id: lab.id,
+                    image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },
+                    label: lab.name,
+                    coins: lab.coins,
+                  }))}
+                />
+              ))
+            ) : (
+              <View style={styles.noResultsContainer}>
                 <Text style={styles.noResults}>لا يوجد تحليل بهذا الاسم ⚠️</Text>
-              )}
-            </ScrollView>
-          </>
+              </View>
+            )}
+          </ScrollView>
         )}
       </View>
     </SafeAreaView>
@@ -187,40 +167,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  bannerWrapper: {
-    marginTop: hp("2%"),
-    marginBottom: hp("2%"),
-  },
-  bannerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: wp("3%"),
-    paddingHorizontal: wp("3%"),
-  },
-  image: {
-    width: wp("80%"),
-    height: hp("25%"),
-    borderRadius: wp("3%"),
-    resizeMode: "contain",
+  headerContainer: {
+    paddingTop: Platform.OS === 'ios' ? hp('1%') : hp('2%'),
+    paddingBottom: hp('1%'),
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   scrollContent: {
-    paddingBottom: hp("5%"),
+    flexGrow: 1,
+    paddingTop: hp('1%'),
+    paddingBottom: hp('8%'),
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
   loadingText: {
     color: "#005FA1",
     fontSize: wp("4%"),
     marginTop: hp("1%"),
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: hp('20%'),
   },
   noResults: {
     textAlign: "center",
-    marginTop: hp("5%"),
     fontSize: wp("4%"),
-    color: "red",
+    color: "#666",
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
   },
 });
-
