@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function LabLocationScreen() {
   const openMaps = async () => {
     try {
-      const url = 'https://maps.google.com/?q=27.6415,30.8480';
+      const url = 'https://maps.google.com/?q=27.736946,30.844242';
       const supported = await Linking.canOpenURL(url);
       
       if (supported) {
@@ -44,10 +44,15 @@ export default function LabLocationScreen() {
           📍 ش أمام مدرسة الثانوية بنات بجوار مدرسة ميس بيرسون - ملوي - المنيا
         </Text>
 
+        {/* إحداثيات الموقع */}
+        <View style={styles.coordinates}>
+          <Text style={styles.coordinatesTitle}>الإحداثيات:</Text>
+          <Text style={styles.coordinatesText}>27.736946, 30.844242</Text>
+        </View>
+
         <TouchableOpacity style={styles.contactItem} onPress={callPhone}>
-         
-          <Text style={styles.contactText}> 01002281461</Text>
-           <Ionicons name="call" size={24} color="#005FA1" />
+          <Text style={styles.contactText}>01002281461</Text>
+          <Ionicons name="call" size={24} color="#005FA1" />
         </TouchableOpacity>
 
         <View style={styles.hoursSection}>
@@ -59,7 +64,7 @@ export default function LabLocationScreen() {
 
         <TouchableOpacity style={styles.mapButton} onPress={openMaps}>
           <Ionicons name="navigate" size={20} color="#fff" />
-          <Text style={styles.mapButtonText}>فتح في الخرائط</Text>
+          <Text style={styles.mapButtonText}>فتح في خرائط جوجل</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -102,7 +107,29 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     lineHeight: 22,
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+  coordinates: {
+    backgroundColor: "#f0f7ff",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#005FA1",
+    borderStyle: "dashed",
+  },
+  coordinatesTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#005FA1",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  coordinatesText: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    fontFamily: "monospace",
   },
   contactItem: {
     flexDirection: "row-reverse",
