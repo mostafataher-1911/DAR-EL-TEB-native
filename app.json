@@ -2,7 +2,7 @@
   "expo": {
     "name": "Dar-El-Teb",
     "slug": "dar-el-teb",
-    "version": "1.0.2",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/LOGO-DARELTEB.png",
     "scheme": "darelteb",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.darelteb.com",
-      "buildNumber": "1.0.1",
+      "buildNumber": "2.0.0",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
