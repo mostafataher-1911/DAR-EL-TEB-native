@@ -45,10 +45,10 @@ export default function LabLocationScreen() {
         </Text>
 
         {/* إحداثيات الموقع */}
-        <View style={styles.coordinates}>
+        {/* <View style={styles.coordinates}>
           <Text style={styles.coordinatesTitle}>الإحداثيات:</Text>
           <Text style={styles.coordinatesText}>27.736946, 30.844242</Text>
-        </View>
+        </View> */}
 
         <TouchableOpacity style={styles.contactItem} onPress={callPhone}>
           <Text style={styles.contactText}>01002281461</Text>

@@ -17,7 +17,7 @@ export default function OffersScreen() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch("https://apilab.runasp.net/api/ClientMobile/GetResponserImage", {
+        const res = await fetch("https://apilab-dev.runasp.net/api/ClientMobile/GetResponserImage", {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -67,7 +67,7 @@ export default function OffersScreen() {
             banners.map((item, index) => (
               <View key={index} style={styles.bannerCard}>
                 <Image
-                  source={{ uri: `https://apilab.runasp.net${item.imageUrl}` }}
+                  source={{ uri: `https://apilab-dev.runasp.net${item.imageUrl}` }}
                   style={styles.bannerImage}
                   resizeMode="contain"
                 />
