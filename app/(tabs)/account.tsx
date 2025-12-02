@@ -49,7 +49,7 @@ export default class Account extends Component<{}, State> {
 
       // console.log("📦 Token found:", token);
 
-      const response = await fetch("https://apilab-dev.runasp.net/api/ClientMobile/GetProfile", {
+      const response = await fetch("https://apilab.runasp.net/api/ClientMobile/GetProfile", {
         method: "GET",
         headers: {
           Accept: "application/json",

@@ -21,7 +21,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://apilab-dev.runasp.net/api/ClientMobile/GetMedicalLabs", {
+        const res = await fetch("https://apilab.runasp.net/api/ClientMobile/GetMedicalLabs", {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -140,7 +140,7 @@ export default function HomeScreen() {
                   }
                   items={section.labs.map((lab: any) => ({
                     id: lab.id,
-                    image: { uri: `https://apilab-dev.runasp.net${lab.imageUrl}` },
+                    image: { uri: `https://apilab.runasp.net${lab.imageUrl}` },
                     label: lab.name,
                     coins: lab.coins,
                   }))}
