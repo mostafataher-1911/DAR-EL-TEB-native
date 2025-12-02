@@ -23,7 +23,7 @@ export default function Unions() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://apilab.runasp.net/api/ClientMobile/GetAllUnion", {
+    fetch("https://apilab-dev.runasp.net/api/ClientMobile/GetAllUnion", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -80,7 +80,7 @@ export default function Unions() {
             filteredUnions.map((union: any) => (
               <DiscountCard
                 key={union.id}
-                imageSource={{ uri: `https://apilab.runasp.net${union.imageUrl}` }}
+                imageSource={{ uri: `https://apilab-dev.runasp.net${union.imageUrl}` }}
                 unionName={union.name}
                 discount={`${union.disCount}%`}
                 onPress={() => handleNavigate(union)}
